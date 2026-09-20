@@ -64,7 +64,7 @@ const CATEGORIES = [
   },
   {
     key: 'tools',
-    label: 'DevOps & Arsenal',
+    label: 'DevOps & Tools',
     icon: 'fas fa-tools',
     color: '#ffb800',
     items: [
@@ -124,7 +124,7 @@ export default function Skills() {
           {/* Categories Navigation */}
           <div ref={sideRef} className={`skills-sidebar${sideVis ? ' vis' : ''}`}>
             <div className="sidebar-head">SKILL MATRIX</div>
-            {CATEGORIES.map(c => (
+            {CATEGORIES.map((c, i) => (
               <button
                 key={c.key}
                 className={`sk-cat-btn${activeCat === c.key ? ' active' : ''}`}
@@ -133,7 +133,7 @@ export default function Skills() {
               >
                 <i className={`${c.icon} sk-cat-icon`} aria-hidden="true" style={{ color: c.color }} />
                 <span>{c.label}</span>
-                <span className="sk-cat-count">{c.items.length}</span>
+                <span className="sk-cat-count">{String(i + 1).padStart(2, '0')}</span>
               </button>
             ))}
           </div>

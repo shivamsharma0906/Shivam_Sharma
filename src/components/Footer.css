@@ -1,13 +1,5 @@
 
-  :root {
-    --bg:     #04040a;
-    --surface: #0a0a14;
-    --cyan:   #00f0ff;
-    --green:  #00ff88;
-    --white:  #eeeef2;
-    --muted:  #6b6b80;
-    --border: rgba(255,255,255,0.06);
-  }
+  /* Footer styles inherit tokens from index.css */
 
   .site-footer {
     position: relative;
@@ -15,6 +7,10 @@
     border-top: 1px solid var(--border);
     padding: 0;
     overflow: hidden;
+  }
+
+  [data-theme="light"] .site-footer {
+    background: #ffffff;
   }
 
   /* top scan line */

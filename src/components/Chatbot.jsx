@@ -91,7 +91,15 @@ export default function Chatbot() {
   return (
     <>
       {/* ── Panel ── */}
-      <div id="ai-chat-panel" className={`chat-panel${isOpen ? ' open' : ''}`} role="dialog" aria-label="AI Assistant">
+      <div
+        id="ai-chat-panel"
+        className={`chat-panel${isOpen ? ' open' : ''}`}
+        role="dialog"
+        aria-label="AI Assistant"
+        aria-modal="true"
+        aria-hidden={!isOpen}
+        hidden={!isOpen}
+      >
         {/* Header */}
         <div className="chat-head">
           <span className="chat-head-pip" aria-hidden="true" />
@@ -142,8 +150,7 @@ export default function Chatbot() {
       {!isOpen && (
         <button id="ai-chat-toggle" className="chat-toggle-btn" aria-label="Open AI chat assistant" onClick={open}>
           <span className="chat-toggle-pip" aria-hidden="true" />
-          <i className="fas fa-comments" aria-hidden="true" />
-          <span>Chat with Me</span>
+          <span className="chat-toggle-text">AI ✦</span>
         </button>
       )}
     </>

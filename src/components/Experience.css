@@ -1,20 +1,7 @@
 
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500&display=swap');
 
-  :root {
-    --bg:       #04040a;
-    --surface:  #0a0a14;
-    --surface2: #0f0f1c;
-    --cyan:     #00f0ff;
-    --cyan-dim: rgba(0,240,255,0.07);
-    --cyan-mid: rgba(0,240,255,0.18);
-    --green:    #00ff88;
-    --amber:    #ffb800;
-    --white:    #eeeef2;
-    --muted:    #6b6b80;
-    --border:   rgba(255,255,255,0.06);
-    --border-h: rgba(0,240,255,0.22);
-  }
+  /* Experience styles inherit tokens from index.css */
 
   /* ── Section ── */
   #experience {
@@ -37,25 +24,25 @@
     font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--cyan);
+    color: var(--accent-cyan, var(--cyan));
     display: flex; align-items: center; gap: 12px;
     margin-bottom: 16px;
     opacity: 0; transform: translateY(12px);
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
-  .exp-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--cyan); }
+  .exp-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent-cyan, var(--cyan)); }
   .exp-eyebrow.vis { opacity: 1; transform: translateY(0); }
 
   .exp-title {
     font-family: 'Syne', sans-serif;
     font-size: clamp(36px, 5vw, 64px);
     font-weight: 800; line-height: 0.95; letter-spacing: -0.03em;
-    color: var(--white);
+    color: var(--text-primary, var(--white));
     margin-bottom: 80px;
     opacity: 0; transform: translateY(20px);
     transition: opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s;
   }
-  .exp-title em { font-style: normal; -webkit-text-stroke: var(--stroke-w) var(--cyan); color: var(--stroke-c); }
+  .exp-title em { font-style: normal; -webkit-text-stroke: 1.5px var(--accent-cyan, var(--cyan)); color: transparent; }
   .exp-title.vis { opacity: 1; transform: translateY(0); }
 
   /* ── Timeline layout ── */
@@ -107,19 +94,19 @@
     flex-shrink: 0;
   }
   .exp-item:hover .exp-dot {
-    border-color: var(--cyan);
-    box-shadow: 0 0 10px var(--cyan);
+    border-color: var(--accent-cyan, var(--cyan));
+    box-shadow: 0 0 10px var(--accent-cyan, var(--cyan));
   }
   .exp-dot-inner {
     width: 5px; height: 5px;
     border-radius: 50%;
-    background: var(--muted);
+    background: var(--text-muted, var(--muted));
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     transition: background 0.3s;
   }
-  .exp-item:hover .exp-dot-inner { background: var(--cyan); }
+  .exp-item:hover .exp-dot-inner { background: var(--accent-cyan, var(--cyan)); }
 
   /* ── Card ── */
   .exp-card {
@@ -133,18 +120,19 @@
   }
   .exp-card:hover { border-color: var(--border-h); background: var(--surface2); }
 
-  /* corner */
-  .exp-card::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 0; height: 0;
-    border-style: solid;
-    border-width: 0 32px 32px 0;
-    border-color: transparent var(--surface2) transparent transparent;
-    transition: border-color 0.35s;
+  [data-theme="light"] .exp-card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
   }
-  .exp-card:hover::before { border-color: transparent var(--bg) transparent transparent; }
+  [data-theme="light"] .exp-card:hover {
+    background: #ffffff;
+    border-color: rgba(2, 132, 199, 0.4);
+    box-shadow: 0 20px 40px -12px rgba(2, 132, 199, 0.16), 0 0 0 1px rgba(2, 132, 199, 0.2);
+    transform: translateY(-3px);
+  }
+
+  /* corner pseudo-elements removed to prevent white box artifacts */
 
   /* scan sweep */
   .exp-card::after {
@@ -174,7 +162,7 @@
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--cyan);
+    color: var(--accent-cyan, var(--cyan));
     background: var(--cyan-dim);
     flex-shrink: 0;
   }
@@ -182,8 +170,33 @@
     content: '';
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 5px var(--cyan);
+    background: var(--accent-cyan, var(--cyan));
+    box-shadow: 0 0 5px var(--accent-cyan, var(--cyan));
+  }
+
+  [data-theme="light"] .exp-date-badge {
+    background: rgba(2, 132, 199, 0.08);
+    border-color: rgba(2, 132, 199, 0.25);
+    color: #0284c7;
+    font-weight: 600;
+  }
+  [data-theme="light"] .exp-date-badge::before {
+    background: #0284c7;
+    box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
+  }
+  [data-theme="light"] .exp-org {
+    color: #4f46e5;
+    font-weight: 600;
+  }
+  [data-theme="light"] .exp-org i {
+    color: #0284c7;
+  }
+  [data-theme="light"] .exp-dot {
+    background: #ffffff;
+    border-color: #0284c7;
+  }
+  [data-theme="light"] .exp-dot-inner {
+    background: #0284c7;
   }
 
   .exp-card-id {
@@ -199,7 +212,7 @@
     font-family: 'Syne', sans-serif;
     font-size: 20px; font-weight: 700;
     letter-spacing: -0.01em;
-    color: var(--white);
+    color: var(--text-primary, var(--white));
     margin-bottom: 6px;
     transition: color 0.3s;
   }
@@ -207,24 +220,23 @@
   .exp-org {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--text-muted, var(--muted));
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .exp-org i { color: var(--cyan); opacity: 0.7; font-size: 13px; }
+  .exp-org i { color: var(--accent-cyan, var(--cyan)); opacity: 0.8; font-size: 13px; }
 
   .exp-desc {
     font-family: 'Instrument Sans', sans-serif;
     font-size: 14px;
     line-height: 1.75;
-    color: var(--muted);
+    color: var(--text-secondary, var(--muted));
     transition: color 0.3s;
   }
-  .exp-card:hover .exp-desc { color: #8a8aa0; }
 
   /* highlights list */
   .exp-highlights {
@@ -241,7 +253,7 @@
     font-family: 'Instrument Sans', sans-serif;
     font-size: 14px;
     line-height: 1.75;
-    color: var(--muted);
+    color: var(--text-secondary, var(--muted));
     transition: color 0.3s;
   }
   .exp-highlight-item::before {
@@ -252,10 +264,9 @@
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 5px var(--cyan);
+    background: var(--accent-cyan, var(--cyan));
+    box-shadow: 0 0 5px var(--accent-cyan, var(--cyan));
   }
-  .exp-card:hover .exp-highlight-item { color: #8a8aa0; }
 
   /* tags */
   .exp-tags {
@@ -271,10 +282,25 @@
     text-transform: uppercase;
     padding: 4px 12px;
     border: 1px solid var(--border);
-    color: var(--muted);
+    border-radius: 9999px;
+    color: var(--text-secondary, var(--muted));
+    cursor: default;
+    pointer-events: none;
     transition: color 0.25s, border-color 0.25s;
   }
-  .exp-card:hover .exp-tag { color: var(--cyan); border-color: rgba(0,240,255,0.2); }
+  .exp-card:hover .exp-tag { color: var(--accent-cyan, var(--cyan)); border-color: rgba(0,240,255,0.2); }
+
+  [data-theme="light"] .exp-tag {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.22);
+    color: #4338ca;
+    font-weight: 500;
+  }
+  [data-theme="light"] .exp-card:hover .exp-tag {
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #3730a3;
+    background: rgba(99, 102, 241, 0.12);
+  }
 
   /* ── Keyframes ── */
   @keyframes expScan {

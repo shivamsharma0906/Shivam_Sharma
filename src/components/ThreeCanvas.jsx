@@ -4,7 +4,7 @@ import { Stars, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ─── Neural Core (The glowing brain-like structure) ─────────────
-function NeuralCore() {
+function NeuralCore({ isLight }) {
   const meshRef = useRef();
 
   useFrame((state) => {
@@ -29,11 +29,11 @@ function NeuralCore() {
       <mesh>
         <icosahedronGeometry args={[2.5, 4]} />
         <meshBasicMaterial 
-          color="#00f0ff" 
+          color={isLight ? "#cbd5e1" : "#00f0ff"} 
           wireframe 
           transparent 
-          opacity={0.15} 
-          blending={THREE.AdditiveBlending} 
+          opacity={isLight ? 0.25 : 0.15} 
+          blending={isLight ? THREE.NormalBlending : THREE.AdditiveBlending} 
         />
       </mesh>
       
@@ -41,29 +41,31 @@ function NeuralCore() {
       <mesh>
         <icosahedronGeometry args={[1.8, 3]} />
         <meshBasicMaterial 
-          color="#a855f7" 
+          color={isLight ? "#94a3b8" : "#a855f7"} 
           wireframe 
           transparent 
-          opacity={0.3} 
-          blending={THREE.AdditiveBlending} 
+          opacity={isLight ? 0.25 : 0.3} 
+          blending={isLight ? THREE.NormalBlending : THREE.AdditiveBlending} 
         />
       </mesh>
 
       {/* Deep inner solid core to obscure background lines */}
       <mesh>
         <sphereGeometry args={[1.5, 32, 32]} />
-        <meshBasicMaterial color="#04040a" />
+        <meshBasicMaterial color={isLight ? "#f8fafc" : "#04040a"} />
       </mesh>
     </group>
   );
 }
 
 // Helper to generate node positions outside component render
-function generateDataNodes(count) {
+function generateDataNodes(count, isLight = false) {
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   const color = new THREE.Color();
-  const palettes = ['#00f0ff', '#00ff88', '#a855f7'];
+  const palettes = isLight 
+    ? ['#0ea5e9', '#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899']
+    : ['#00f0ff', '#00ff88', '#a855f7'];
 
   for (let i = 0; i < count; i++) {
     const theta = Math.random() * Math.PI * 2;
@@ -83,10 +85,10 @@ function generateDataNodes(count) {
 }
 
 // ─── Data Nodes (Plexus effect approximations) ─────────────
-function DataNodes({ count = 100 }) {
+function DataNodes({ count = 100, isLight = false }) {
   const linesRef = useRef();
   
-  const { positions, colors } = useMemo(() => generateDataNodes(count), [count]);
+  const { positions, colors } = useMemo(() => generateDataNodes(count, isLight), [count, isLight]);
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
@@ -114,16 +116,16 @@ function DataNodes({ count = 100 }) {
         size={0.08} 
         vertexColors 
         transparent 
-        opacity={0.8} 
+        opacity={isLight ? 0.65 : 0.8} 
         sizeAttenuation 
-        blending={THREE.AdditiveBlending}
+        blending={isLight ? THREE.NormalBlending : THREE.AdditiveBlending}
       />
     </points>
   );
 }
 
 // ─── Cursor Trail (Energy trail following the mouse) ─────────────
-function CursorTrail() {
+function CursorTrail({ isLight = false }) {
   const pointsRef = useRef();
   const { viewport, pointer } = useThree();
   const count = 30; // Number of trail segments
@@ -150,7 +152,7 @@ function CursorTrail() {
     history.current.pop();
     history.current.unshift({ x: nx, y: ny });
 
-    const colorObj = new THREE.Color('#00f0ff');
+    const colorObj = new THREE.Color(isLight ? '#0284c7' : '#00f0ff');
 
     for (let i = 0; i < count; i++) {
       const p = history.current[i];
@@ -188,12 +190,12 @@ function CursorTrail() {
         />
       </bufferGeometry>
       <pointsMaterial 
-        size={0.15} 
+        size={isLight ? 0.1 : 0.15} 
         vertexColors 
         transparent 
-        opacity={0.6} 
+        opacity={isLight ? 0.35 : 0.6} 
         sizeAttenuation 
-        blending={THREE.AdditiveBlending}
+        blending={isLight ? THREE.NormalBlending : THREE.AdditiveBlending}
       />
     </points>
   );
@@ -217,15 +219,35 @@ function CameraRig() {
 
 // ─── Main Component ─────────────
 export default function ThreeCanvas() {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme')) || 'dark';
+  });
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    const onThemeChange = (e) => {
+      setTheme(e.detail?.theme || document.documentElement.getAttribute('data-theme') || 'dark');
+    };
+    window.addEventListener('themechange', onThemeChange);
+
+    const observer = new MutationObserver(() => {
+      setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('themechange', onThemeChange);
+      observer.disconnect();
+    };
   }, []);
+
+  const isLight = theme === 'light';
+  const bgColor = isLight ? '#f8fafc' : '#04040a';
 
   return (
     <div 
@@ -237,39 +259,38 @@ export default function ThreeCanvas() {
         height: '100vh', 
         zIndex: 0,
         pointerEvents: 'none',
-        background: '#04040a', // Base color fallback
+        background: bgColor,
         opacity: 0,
-        animation: 'canvasFadeIn 2s ease forwards'
+        animation: 'canvasFadeIn 2s ease forwards',
+        transition: 'background 0.3s ease'
       }}
       aria-hidden="true"
     >
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
-        dpr={isMobile ? 1 : [1, 2]} // Graceful degradation for mobile pixel ratio
+        dpr={isMobile ? 1 : [1, 2]}
         gl={{ antialias: !isMobile, alpha: false, powerPreference: "high-performance" }}
       >
-        <color attach="background" args={['#04040a']} />
-        
-        {/* Adds fog to fade elements into the distance */}
-        <fog attach="fog" args={['#04040a', 5, 15]} />
+        <color attach="background" args={[bgColor]} />
+        <fog attach="fog" args={[bgColor, 5, 15]} />
 
-        {/* Floating AI structures */}
         <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-          <NeuralCore />
-          <DataNodes count={isMobile ? 40 : 200} />
-          <CursorTrail />
+          <NeuralCore isLight={isLight} />
+          <DataNodes count={isMobile ? 40 : 150} isLight={isLight} />
+          <CursorTrail isLight={isLight} />
         </Float>
         
-        {/* Distant star field for depth */}
-        <Stars 
-          radius={12} 
-          depth={20} 
-          count={isMobile ? 300 : 2500} 
-          factor={4} 
-          saturation={1} 
-          fade 
-          speed={0.5} 
-        />
+        {!isLight && (
+          <Stars 
+            radius={12} 
+            depth={20} 
+            count={isMobile ? 300 : 2500} 
+            factor={4} 
+            saturation={1} 
+            fade 
+            speed={0.5} 
+          />
+        )}
 
         <CameraRig />
       </Canvas>

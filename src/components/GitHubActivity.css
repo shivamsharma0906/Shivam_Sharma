@@ -95,6 +95,11 @@
   box-sizing: border-box;
 }
 
+[data-theme="light"] .gh-panel {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
 .gh-panel:hover {
   border-color: var(--border-h);
   box-shadow: 0 20px 60px -15px rgba(0, 240, 255, 0.1);
@@ -170,14 +175,15 @@
 /* ── Shared block title ── */
 .gh-block-title {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
 }
 
 .gh-live-pill {
@@ -379,6 +385,10 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+[data-theme="light"] .gh-cell.level-0 {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .gh-cell.level-1 {
   background: rgba(0, 255, 136, 0.2);
 }
@@ -452,6 +462,10 @@
   box-sizing: border-box;
 }
 
+[data-theme="light"] .gh-repo-card {
+  background: #ffffff;
+}
+
 .gh-repo-card.active {
   border-color: var(--repo-c, var(--cyan));
   background: var(--surface);
@@ -460,6 +474,11 @@
 .gh-repo-card:hover {
   border-color: rgba(255, 255, 255, 0.15);
   background: var(--surface);
+}
+
+[data-theme="light"] .gh-repo-card:hover {
+  background: #fbfbfd;
+  border-color: var(--border-h);
 }
 
 .gh-repo-bar {
@@ -516,7 +535,7 @@
 
 .gh-repo-desc {
   font-family: 'Instrument Sans', sans-serif;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: var(--muted);
   line-height: 1.6;
   flex: 1;
@@ -679,7 +698,7 @@
   padding: 14px 28px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--muted);
@@ -706,6 +725,16 @@
 .gh-profile-link:hover {
   color: var(--white);
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .gh-profile-link {
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .gh-profile-link:hover {
+  border-color: var(--border-h);
+  color: var(--text-primary);
 }
 
 .gh-profile-link span {

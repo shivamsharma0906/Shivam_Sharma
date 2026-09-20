@@ -158,18 +158,20 @@ function InteractiveTerminal({ tiltRef, active, setActive }) {
   const [input, setInput]     = useState('')
   const [cmdHist, setCmdHist] = useState([])
   const [histIdx, setHistIdx] = useState(-1)
-  const [isTyping, setIsTyping] = useState(false)
   const bodyRef   = useRef(null)
   const inputRef  = useRef(null)
+
+  // Auto-focus input when terminal becomes active
+  useEffect(() => {
+    if (active) {
+      inputRef.current?.focus()
+    }
+  }, [active])
 
   // Scroll to bottom on every new line or active toggle
   useEffect(() => {
     if (bodyRef.current) {
-      const timer = requestAnimationFrame(() => {
-        if (bodyRef.current)
-          bodyRef.current.scrollTop = bodyRef.current.scrollHeight
-      })
-      return () => cancelAnimationFrame(timer)
+      bodyRef.current.scrollTop = bodyRef.current.scrollHeight
     }
   }, [lines, active])
 
@@ -184,27 +186,28 @@ function InteractiveTerminal({ tiltRef, active, setActive }) {
       const chosen = greetings[Math.floor(Math.random() * greetings.length)]
       
       setActive(true)
-      setLines([{ type: 'out', text: chosen }])
-      setTimeout(() => {
-        setLines(l => [...l, { type: 'out', text: '  Type "help" to explore or "exit" to close →' }])
-        inputRef.current?.focus()
-      }, 400)
-    } else {
-      inputRef.current?.focus()
+      setLines([
+        { type: 'out', text: chosen },
+        { type: 'out', text: '  Type a command below or click a quick chip:' }
+      ])
     }
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
   }
 
   const run = useCallback((raw) => {
+    if (!raw) return
     const cmd = raw.trim().toLowerCase()
-    if (!cmd || isTyping) return
+    if (!cmd) return
 
-    setCmdHist(h => [raw.trim(), ...h])
+    setCmdHist(h => [raw.trim(), ...h.filter(item => item !== raw.trim())])
     setHistIdx(-1)
     setLines(l => [...l, { type: 'in', text: raw.trim() }])
 
     const handler = COMMANDS[cmd]
     if (!handler) {
-      setLines(l => [...l, { type: 'out', text: `  command not found: ${cmd}. Type "help" for commands.` }])
+      setLines(l => [...l, { type: 'out', text: `  command not found: "${cmd}". Type "help" for available commands.` }])
       return
     }
 
@@ -216,54 +219,55 @@ function InteractiveTerminal({ tiltRef, active, setActive }) {
     }
 
     if (result === '__EXIT__') {
-      setIsTyping(true)
+      setLines(l => [
+        ...l, 
+        { type: 'out', text: '  Shutting down ShivamOS...' },
+        { type: 'out', text: '  Session terminated.' }
+      ])
       setTimeout(() => {
-        setLines(l => [...l, { type: 'out', text: '  Shutting down ShivamOS...' }])
-        setTimeout(() => {
-          setLines(l => [...l, { type: 'out', text: '  Session terminated successfully.' }])
-          setTimeout(() => {
-            setActive(false)
-            setLines([])
-            setInput('')
-            setIsTyping(false)
-          }, 500)
-        }, 400)
-      }, 200)
+        setActive(false)
+        setLines([])
+        setInput('')
+      }, 500)
       return
     }
 
     if (cmd === 'resume' || cmd === 'github') {
-      setIsTyping(true)
-      let i = 0
-      const interval = setInterval(() => {
-        if (i < result.length) {
-          setLines(l => [...l, { type: 'out', text: result[i] }])
-          i++
-        } else {
-          clearInterval(interval)
-          setIsTyping(false)
-          if (cmd === 'resume') window.open('/shivam_resume.pdf', '_blank')
-          if (cmd === 'github') window.open('https://github.com/shivamsharma0906', '_blank')
-        }
-      }, 200)
+      setLines(l => [...l, ...result.map(t => ({ type: 'out', text: t }))])
+      setTimeout(() => {
+        if (cmd === 'resume') window.open('/shivam_resume.pdf', '_blank')
+        if (cmd === 'github') window.open('https://github.com/shivamsharma0906', '_blank')
+      }, 400)
       return
     }
 
     // Normal command output
     setLines(l => [...l, ...result.map(t => ({ type: 'out', text: t }))])
-  }, [isTyping, setActive])
+  }, [setActive])
 
-  const onKeyDown = (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault()
+    const current = input
+    if (!current || !current.trim()) return
+    run(current)
+    setInput('')
+    setTimeout(() => inputRef.current?.focus(), 20)
+  }
+
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key?.toLowerCase() === 'l') {
       e.preventDefault()
       setLines([])
       return
     }
 
-    if (e.key === 'Enter') {
-      run(input)
-      setInput('')
-    } else if (e.key === 'ArrowUp') {
+    if (e.key === 'Enter' || e.keyCode === 13 || e.which === 13 || e.code === 'Enter' || e.code === 'NumpadEnter') {
+      e.preventDefault()
+      handleSubmit(e)
+      return
+    }
+
+    if (e.key === 'ArrowUp') {
       e.preventDefault()
       if (cmdHist.length > 0) {
         const next = Math.min(histIdx + 1, cmdHist.length - 1)
@@ -282,26 +286,92 @@ function InteractiveTerminal({ tiltRef, active, setActive }) {
     }
   }
 
+  const QUICK_COMMANDS = ['help', 'projects', 'stack', 'timeline', 'status', 'resume', 'clear', 'exit']
+
   return (
     <div
       className={`hero-card hero-terminal${active ? ' terminal-active' : ''}`}
       ref={tiltRef}
-      onClick={activate}
       role="application"
       aria-label="Interactive terminal"
+      onClick={() => {
+        if (!active) {
+          activate()
+        } else {
+          inputRef.current?.focus()
+        }
+      }}
     >
-      {/* Window chrome */}
+      {/* Window chrome header with clickable tabs and dots */}
       <div className="terminal-header">
-        <span className="terminal-dot" style={{ background: '#ff5f57' }} />
-        <span className="terminal-dot" style={{ background: '#febc2e' }} />
-        <span className="terminal-dot" style={{ background: '#28c840' }} />
-        <span className="terminal-title">
-          {active ? 'shivam@portfolio:~$' : 'profile.json'}
-        </span>
+        <div className="terminal-dots">
+          <button
+            type="button"
+            className="terminal-dot dot-red"
+            onClick={(e) => {
+              e.stopPropagation()
+              setActive(false)
+              setLines([])
+              setInput('')
+            }}
+            title="Exit interactive terminal"
+            aria-label="Close terminal"
+          />
+          <button
+            type="button"
+            className="terminal-dot dot-yellow"
+            onClick={(e) => {
+              e.stopPropagation()
+              setLines([])
+              setInput('')
+              inputRef.current?.focus()
+            }}
+            title="Clear terminal output"
+            aria-label="Clear output"
+          />
+          <button
+            type="button"
+            className="terminal-dot dot-green"
+            onClick={(e) => {
+              e.stopPropagation()
+              if (!active) activate()
+              setTimeout(() => run('help'), 100)
+            }}
+            title="Run help command"
+            aria-label="Run help"
+          />
+        </div>
+
+        <div className="terminal-tabs">
+          <button
+            type="button"
+            className={`terminal-tab${!active ? ' active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              setActive(false)
+            }}
+          >
+            profile.json
+          </button>
+          <button
+            type="button"
+            className={`terminal-tab${active ? ' active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              activate()
+            }}
+          >
+            terminal.sh ⚡
+          </button>
+        </div>
       </div>
 
       {/* Body */}
-      <div className="terminal-body" ref={bodyRef}>
+      <div 
+        className="terminal-body" 
+        ref={bodyRef}
+        onClick={() => inputRef.current?.focus()}
+      >
         {!active ? (
           /* ── Static view ── */
           <>
@@ -315,32 +385,73 @@ function InteractiveTerminal({ tiltRef, active, setActive }) {
             &nbsp;&nbsp;<span className="t-brace">],</span><br />
             &nbsp;&nbsp;<span className="t-key">"openToWork"</span><span className="t-brace">: </span><span className="t-bool">true</span><br />
             <span className="t-brace">{'}'}</span>
-            <div className="terminal-hint">click to interact →</div>
+            <div className="terminal-hint-row">
+              <button
+                type="button"
+                className="terminal-launch-btn"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  activate()
+                }}
+              >
+                <span>⚡ Click to launch interactive shell</span>
+                <span className="launch-badge">TRY ME</span>
+              </button>
+            </div>
           </>
         ) : (
           /* ── Interactive view ── */
           <div className="term-interactive">
+            {/* Quick action chips */}
+            <div className="term-chips">
+              {QUICK_COMMANDS.map(c => (
+                <button
+                  key={c}
+                  type="button"
+                  className="term-chip"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    run(c)
+                    inputRef.current?.focus()
+                  }}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
             {lines.map((l, i) => (
               <div key={i} className={`term-line term-${l.type}`}>
                 {l.type === 'in' && <span className="term-prompt">› </span>}
                 {l.text}
               </div>
             ))}
-            {/* Input row */}
-            <div className="term-input-row">
+
+            {/* Input row wrapped in form with explicit submit button */}
+            <form className="term-input-row" onSubmit={handleSubmit}>
               <span className="term-prompt">› </span>
               <input
                 ref={inputRef}
                 className="term-input"
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                onKeyDown={onKeyDown}
+                onKeyDown={handleKeyDown}
                 spellCheck={false}
                 autoComplete="off"
                 autoCapitalize="off"
+                placeholder="type command (e.g. live, projects)..."
                 aria-label="Terminal input"
               />
-            </div>
+              <button
+                type="submit"
+                className="term-enter-btn"
+                title="Execute command (Enter ↵)"
+                aria-label="Execute command"
+              >
+                <span>ENTER</span>
+                <span className="term-enter-icon">↵</span>
+              </button>
+            </form>
           </div>
         )}
       </div>
@@ -417,9 +528,9 @@ export default function Hero() {
                 href="#projects"
                 className="hero-cta-primary"
                 onClick={scrollTo('#projects')}
-                aria-label="View my projects"
+                aria-label="View my work"
               >
-                <span>Explore Projects</span>
+                <span>View My Work</span>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M1 11L11 1M11 1H4M11 1v7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -431,7 +542,7 @@ export default function Hero() {
                 rel="noopener noreferrer"
                 aria-label="Download resume"
               >
-                <span>Download CV</span>
+                <span>Download Resume</span>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M5 1v6M2 5l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

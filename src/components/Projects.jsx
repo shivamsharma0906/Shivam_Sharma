@@ -35,7 +35,7 @@ const PROJECTS = [
   },
 
   {
-    num: 'PRJ_03',
+    num: 'PRJ_02',
     title: 'Juntoz',
     desc: 'Modern futuristic portfolio and agency-style website featuring immersive UI animations, smooth scrolling, glassmorphism effects, interactive sections, responsive layouts, and high-end user experience design.',
     tags: ['React', 'Next.js', 'Tailwind CSS', 'Framer Motion'],
@@ -115,14 +115,7 @@ function ProjectCard({ project, index }) {
 
       <div className="proj-card-head">
         <span className="proj-card-num" aria-hidden="true">{project.num}</span>
-        <div className="proj-card-links">
-          <a href={project.github} className="proj-link" target="_blank" rel="noopener noreferrer" aria-label={`View ${project.title} source`}>
-            <i className="fab fa-github" aria-hidden="true" /> Source
-          </a>
-          <a href={project.demo} className="proj-link" target="_blank" rel="noopener noreferrer" aria-label={`${project.title} live demo`}>
-            <i className="fas fa-external-link-alt" aria-hidden="true" /> Demo
-          </a>
-        </div>
+        <span className="proj-card-cat">{project.category}</span>
       </div>
 
       <h3 className="proj-card-title">{project.title}</h3>
@@ -130,6 +123,17 @@ function ProjectCard({ project, index }) {
 
       <div className="proj-tags">
         {project.tags.map(t => <span key={t} className="proj-tag">{t}</span>)}
+      </div>
+
+      <div className="proj-card-actions">
+        <a href={project.demo} className="proj-link proj-link-demo" target="_blank" rel="noopener noreferrer" aria-label={`${project.title} live demo`}>
+          <span>Live Demo</span>
+          <i className="fas fa-external-link-alt" aria-hidden="true" />
+        </a>
+        <a href={project.github} className="proj-link proj-link-source" target="_blank" rel="noopener noreferrer" aria-label={`View ${project.title} source`}>
+          <i className="fab fa-github" aria-hidden="true" />
+          <span>Source</span>
+        </a>
       </div>
     </div>
   )

@@ -114,9 +114,9 @@ export default function GitHubActivity() {
 
               {/* Repos */}
               <div className="gh-repos-section">
-                <div className="gh-block-title">
-                  <i className="fas fa-code-branch" /> Recent Repositories
-                </div>
+                <h3 className="gh-block-title">
+                  <i className="fas fa-code-branch" aria-hidden="true" /> Recent Repositories
+                </h3>
                 <div className="gh-repos-grid">
                   {repos.map((repo) => (
                     <RepoCard

@@ -229,14 +229,12 @@ function DetailView({ cap }) {
 
       {/* Pane Title Card */}
       <div className="pane-head-row">
-        <div className="pane-title-left">
-          <div className="pane-icon-box">
-            <i className={cap.icon} />
-          </div>
-          <div>
+        <div className="pane-title-wrap">
+          <div className="pane-meta-top">
+            <span className="pane-icon-mini"><i className={cap.icon} aria-hidden="true" /></span>
             <span className="pane-domain-tag">{cap.tag}</span>
-            <h3 className="pane-title">{cap.title}</h3>
           </div>
+          <h3 className="pane-title">{cap.title}</h3>
         </div>
         <div className="pane-title-right">
           <span className="pane-large-num">CAP_{cap.num}</span>
@@ -268,7 +266,7 @@ function DetailView({ cap }) {
       {/* Tech Stack tags */}
       <div className="pane-section">
         <span className="pane-section-lbl">
-          <i className="fas fa-layer-group" /> TECHNICAL WEAPONRY
+          <i className="fas fa-layer-group" /> TECHNICAL STACK
         </span>
         <div className="pane-tech-tags">
           {cap.tools.map((t, i) => (
@@ -289,7 +287,7 @@ function DetailView({ cap }) {
         className="pane-action-cta"
         onClick={(e) => { e.preventDefault(); document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' }) }}
       >
-        <span>INITIALIZE WORK_STREAM SOURCE</span>
+        <span>View Related Projects</span>
         <i className="fas fa-arrow-right cta-arrow" />
       </a>
     </div>

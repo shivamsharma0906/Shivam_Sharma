@@ -1,19 +1,7 @@
 
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap');
 
-  :root {
-    --bg:       #04040a;
-    --surface:  #0a0a14;
-    --surface2: #0f0f1c;
-    --cyan:     #00f0ff;
-    --cyan-dim: rgba(0,240,255,0.07);
-    --cyan-mid: rgba(0,240,255,0.18);
-    --green:    #00ff88;
-    --white:    #eeeef2;
-    --muted:    #6b6b80;
-    --border:   rgba(255,255,255,0.06);
-    --border-h: rgba(0,240,255,0.22);
-  }
+  /* About styles inherit tokens from index.css */
 
   /* ── Section ── */
   #about {
@@ -36,7 +24,7 @@
     font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--cyan);
+    color: var(--accent-cyan, var(--cyan));
     display: flex;
     align-items: center;
     gap: 12px;
@@ -45,7 +33,7 @@
     transform: translateY(12px);
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
-  .about-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--cyan); }
+  .about-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent-cyan, var(--cyan)); }
   .about-eyebrow.vis { opacity: 1; transform: translateY(0); }
 
   .about-headline {
@@ -54,7 +42,7 @@
     font-weight: 800;
     line-height: 0.95;
     letter-spacing: -0.03em;
-    color: var(--white);
+    color: var(--text-primary, var(--white));
     margin-bottom: 80px;
     opacity: 0;
     transform: translateY(20px);
@@ -62,7 +50,8 @@
   }
   .about-headline em {
     font-style: normal;
-    -webkit-text-stroke: var(--stroke-w) var(--cyan); color: var(--stroke-c);
+    -webkit-text-stroke: 1.5px var(--accent-cyan, var(--cyan));
+    color: transparent;
   }
   .about-headline.vis { opacity: 1; transform: translateY(0); }
 
@@ -89,6 +78,10 @@
   }
   .about-text-panel.vis { opacity: 1; transform: translateY(0); }
 
+  [data-theme="light"] .about-text-panel {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  }
+
   /* top-right corner cut */
   .about-text-panel::before {
     content: '';
@@ -113,6 +106,10 @@
     z-index: 0;
   }
 
+  [data-theme="light"] .about-text-panel::after {
+    display: none;
+  }
+
   .panel-inner-rel {
     position: relative;
     z-index: 1;
@@ -127,13 +124,13 @@
     font-size: 12px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
     margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .panel-label::before { content: ''; width: 20px; height: 1px; background: var(--cyan); }
+  .panel-label::before { content: ''; width: 20px; height: 1px; background: var(--accent-cyan, var(--cyan)); }
 
   .about-paragraphs {
     display: flex;
@@ -144,13 +141,14 @@
     font-family: 'Instrument Sans', sans-serif;
     font-size: 15px;
     line-height: 1.85;
-    color: var(--muted);
+    color: var(--text-secondary, var(--muted));
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
   .about-para.vis { opacity: 1; transform: translateY(0); }
-  .about-para em { color: var(--white); font-style: normal; font-weight: 500; }
+  .about-para strong { color: var(--text-primary, var(--white)); font-weight: 600; }
+  .about-para em { color: var(--text-primary, var(--white)); font-style: normal; font-weight: 500; }
 
   /* fact grid */
   .about-facts {
@@ -176,15 +174,23 @@
     font-size: 12px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
     margin-bottom: 4px;
   }
   .fact-val {
     font-family: 'Syne', sans-serif;
     font-size: 15px;
     font-weight: 700;
-    color: var(--white);
+    color: var(--text-primary, var(--white));
     letter-spacing: -0.01em;
+  }
+  [data-theme="light"] .fact-key {
+    color: #0284c7;
+    font-weight: 600;
+  }
+  [data-theme="light"] .fact-val {
+    color: #0f172a;
+    font-weight: 700;
   }
 
   /* ── Right: image + status ── */
@@ -210,16 +216,7 @@
     display: flex;
     flex-direction: column;
   }
-  .about-img-panel::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 0; height: 0;
-    border-style: solid;
-    border-width: 0 32px 32px 0;
-    border-color: transparent var(--bg) transparent transparent;
-    z-index: 2;
-  }
+  /* corner pseudo-elements removed to prevent white box artifacts */
   .about-img-panel img {
     width: 100%;
     height: 100%;
@@ -246,10 +243,15 @@
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
     z-index: 3;
   }
-  .img-info-bar span { color: var(--cyan); }
+  .img-info-bar span { color: var(--accent-cyan, var(--cyan)); }
+
+  [data-theme="light"] .img-info-bar {
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--text-muted);
+  }
 
   /* status panel */
   .about-status-panel {
@@ -260,6 +262,11 @@
     flex-direction: column;
     gap: 14px;
   }
+
+  [data-theme="light"] .about-status-panel {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  }
+
   .status-row {
     display: flex;
     align-items: center;
@@ -268,18 +275,34 @@
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
   }
   .status-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .status-row strong { color: var(--white); font-weight: 500; }
+  .status-row strong { color: var(--text-primary, var(--white)); font-weight: 600; }
   .status-badge {
     padding: 3px 10px;
     border: 1px solid rgba(0,255,136,0.3);
     font-size: 11px;
     color: var(--green);
     letter-spacing: 0.1em;
+  }
+
+  [data-theme="light"] .status-badge {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    font-weight: 600;
+  }
+  [data-theme="light"] .img-info-bar span {
+    color: #0284c7;
+    font-weight: 600;
+  }
+  [data-theme="light"] .about-status-panel {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
   }
 
   /* ── Responsive ── */

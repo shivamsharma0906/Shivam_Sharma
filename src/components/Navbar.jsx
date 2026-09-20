@@ -21,6 +21,19 @@ export default function Navbar() {
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    return (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme')) || 'dark'
+  })
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.setAttribute('data-theme', next)
+    try {
+      localStorage.setItem('portfolio-theme', next)
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }))
+  }
 
   /* Reading progress + scroll state */
   useEffect(() => {
@@ -58,7 +71,6 @@ export default function Navbar() {
     <>
       <header
         className={`nav-shell${scrolled ? ' scrolled' : ''}`}
-        style={{ background: scrolled ? undefined : 'rgba(4,4,10,0.2)', backdropFilter: scrolled ? undefined : 'blur(12px)' }}
       >
         {/* Reading progress */}
         <div className="nav-progress" style={{ width: `${progress}%` }} aria-hidden="true" />
@@ -96,31 +108,43 @@ export default function Navbar() {
             {active || 'Home'}
           </span>
 
-          {/* Resume CTA */}
-          <a
-            href="/shivam_resume.pdf"
-            className="nav-resume"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Download resume PDF"
-          >
-            <span>Resume</span>
-          </a>
+          <div className="nav-actions">
+            {/* Resume CTA */}
+            <a
+              href="/shivam_resume.pdf"
+              className="nav-resume"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Download resume PDF"
+            >
+              <span>Resume ↗</span>
+            </a>
 
-          {/* Hamburger */}
-          <button
-            className={`nav-hamburger${menuOpen ? ' open' : ''}`}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen(p => !p)}
-          >
-            <span /><span /><span />
-          </button>
+            {/* Light/Dark theme toggle */}
+            <button
+              className="nav-theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              <i className={theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'} aria-hidden="true" />
+            </button>
+
+            {/* Hamburger (mobile) */}
+            <button
+              className={`nav-hamburger${menuOpen ? ' open' : ''}`}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(p => !p)}
+            >
+              <span /><span /><span />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Mobile drawer */}
-      <div className={`nav-drawer${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
+      <div className={`nav-drawer${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen} hidden={!menuOpen}>
         <div className="nav-drawer-inner">
           {NAV_ITEMS.map(item => (
             <button
